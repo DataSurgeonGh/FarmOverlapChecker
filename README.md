@@ -131,6 +131,7 @@ Once a packaged release is available:
 6. Enable the plugin if necessary.
 
 ## 6. Usage
+<img width="796" height="322" alt="image" src="https://github.com/user-attachments/assets/9d79daf6-bd97-42ea-9dc6-2860d8653260" />
 
 ### Step 1: Load your farm polygon data
 
