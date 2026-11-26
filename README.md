@@ -131,7 +131,7 @@ Once a packaged release is available:
 6. Enable the plugin if necessary.
 
 ## 6. Usage
-
+![alt text](image.png)
 ### Step 1: Load your farm polygon data
 
 Load one or more polygon vector layers into QGIS.
