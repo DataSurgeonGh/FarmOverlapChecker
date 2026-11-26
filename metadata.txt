@@ -1,0 +1,14 @@
+
+[general]
+name=Farm Overlap Checker
+qgisMinimumVersion=3.28
+qgisMaximumVersion=4.99
+description=Identifies overlapping farm polygons using configurable overlap percentage thresholds and exports results to CSV.
+version=1.1.0
+author=KA Chanik
+email=drkan1815@gmail.com
+about=An interactive QGIS plugin for identifying overlapping farm polygons, monitoring processing progress, and exporting results to CSV.
+category=Vector
+icon=icons/icon.svg
+experimental=False
+deprecated=False
