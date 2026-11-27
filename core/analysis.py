@@ -1,4 +1,17 @@
 
+# Farm Overlap Checker
+# Copyright (C) 2026 KA Chanik
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the LICENSE file for details.
+
 import csv
 import math
 import os
@@ -6,7 +19,7 @@ import tempfile
 
 from qgis.core import (
     QgsSpatialIndex,
-    QgsWkbTypes
+    Qgis,
 )
 
 
@@ -63,12 +76,13 @@ def run_overlap_analysis(
     if layer is None or not layer.isValid():
         raise ValueError("The selected layer is invalid.")
 
-    if layer.geometryType() != QgsWkbTypes.PolygonGeometry:
+    if layer.geometryType() != Qgis.GeometryType.Polygon:
         raise ValueError("The selected layer must contain polygons.")
 
     try:
         threshold1 = float(threshold1)
         threshold2 = float(threshold2)
+
     except (TypeError, ValueError):
         raise ValueError("Overlap thresholds must be numeric.")
 
@@ -353,5 +367,6 @@ def run_overlap_analysis(
 
             try:
                 os.remove(temp_path)
+
             except OSError:
                 pass

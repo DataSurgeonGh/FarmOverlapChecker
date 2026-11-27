@@ -1,315 +1,453 @@
-# Farm Overlap Checker
+# 🌾 Farm Overlap Checker
 
-A QGIS Python plugin for identifying overlapping farm polygons using configurable overlap percentage thresholds. The plugin provides an interactive interface for selecting polygon layers, analysing spatial overlaps, monitoring processing progress, and exporting results to CSV.
+**A QGIS 4 plugin for identifying and analysing overlapping farm polygons.**
 
-## 1. Overview
+[![QGIS](https://img.shields.io/badge/QGIS-4.x-589632?logo=qgis&logoColor=white)](https://qgis.org/)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/DataSurgeonGh/FarmOverlapChecker/releases)
+[![License](https://img.shields.io/badge/License-GPL--2.0--or--later-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 
-Farm Overlap Checker is designed to identify farms whose spatial boundaries intersect with those of other farms.
+**Farm Overlap Checker** is an open-source QGIS plugin designed to identify overlapping farm polygons using configurable overlap percentage thresholds.
 
-It evaluates the proportion of each farm's area covered by an intersection with another farm. Users can specify independent overlap thresholds for the two farms being compared.
+It provides two ways to perform the analysis:
 
-The plugin is particularly useful for agricultural land administration, farm boundary validation, geospatial data quality assurance, and the identification of potentially overlapping farm registrations.
+- 🖥️ **Standalone Interface:** A user-friendly graphical interface for selecting polygon layers, configuring thresholds, running the analysis and exporting results.
+- ⚙️ **Processing Toolbox:** A processing algorithm that integrates directly into the QGIS Processing framework.
 
-## 2. Features
+The plugin uses spatial indexing to improve the efficiency of overlap detection, making it suitable for analysing datasets containing large numbers of farm polygons.
 
-### Current features
+---
 
-- **Polygon layer selection:** Select from polygon vector layers currently loaded in the QGIS project.
-- **Active layer support:** Automatically prioritises the active polygon layer.
-- **Layer refresh:** Refresh the available polygon layers when additional layers are loaded into the project.
-- **Independent overlap thresholds:** Specify separate overlap percentage thresholds for Farm 1 and Farm 2.
-- **OR-based threshold evaluation:** A pair of farms is reported when either farm's overlap percentage exceeds its corresponding threshold.
-- **Farm identifier detection:** Automatically detects `farm_id`, with `id` as a fallback.
-- **Spatial indexing:** Uses a spatial index to reduce unnecessary geometric comparisons.
-- **Duplicate prevention:** Avoids comparing a farm with itself and prevents duplicate farm-pair records.
-- **CSV export:** Saves identified overlapping farm pairs to a CSV file.
-- **Temporary QGIS results table:** Loads the analysis results into the current QGIS project as a non-spatial temporary memory layer.
-- **Processing progress:** Displays analysis progress.
-- **Cancellation:** Provides an option to cancel an ongoing analysis.
-- **Error handling:** Handles invalid geometries, missing identifiers, and other processing errors.
+## 📸 Plugin Preview
 
-## 3. How the overlap calculation works
+![Farm Overlap Checker interface](https://github.com/user-attachments/assets/9d79daf6-bd97-42ea-9dc6-2860d8653260)
 
-For two intersecting farm polygons, let:
+---
 
-- \(A_1\) denote the area of Farm 1.
-- \(A_2\) denote the area of Farm 2.
-- \(I_{12}\) denote the area of their intersection.
+## ✨ Key Features
 
-The overlap percentage relative to Farm 1 is:
-
-$$
-O_1 = \frac{I_{12}}{A_1} \times 100
-$$
-
-Similarly, the overlap percentage relative to Farm 2 is:
-
-$$
-O_2 = \frac{I_{12}}{A_2} \times 100
-$$
-
-The plugin reports a pair of farms when:
-
-$$
-O_1 > T_1 \quad \text{OR} \quad O_2 > T_2
-$$
-
-where:
-
-- \(T_1\) is the user-defined overlap threshold for Farm 1.
-- \(T_2\) is the user-defined overlap threshold for Farm 2.
-
-**Important:** The thresholds are evaluated independently. A pair is included if either condition is satisfied. The comparison uses a strict greater-than operator, not greater-than-or-equal-to.
-
-### Example
-
-Suppose:
-
-- Farm 1 has an area of 100 hectares.
-- Farm 2 has an area of 50 hectares.
-- Their intersection covers 20 hectares.
-- Farm 1's threshold is 10%.
-- Farm 2's threshold is 30%.
-
-The overlap percentages are:
-
-$$
-O_1 = \frac{20}{100} \times 100 = 20\%
-$$
-
-$$
-O_2 = \frac{20}{50} \times 100 = 40\%
-$$
-
-Both conditions are satisfied, so the farm pair is reported.
-
-## 4. Requirements
-
-- QGIS 3.28 or later.
-- Python environment provided by QGIS.
-- Polygon vector layers supported by QGIS.
-- Farm identifier field named `farm_id` or, alternatively, `id`.
-
-The plugin is being developed with compatibility across QGIS 3.x and QGIS 4.x in mind. Compatibility should be verified against the specific QGIS releases used.
-
-## 5. Installation
-
-### Option A: Install from the QGIS plugin directory
-
-1. Locate your active QGIS Python plugins directory.
-2. Copy the `FarmOverlapChecker` folder into that directory.
-3. Restart QGIS.
-4. Open **Plugins → Manage and Install Plugins**.
-5. Locate Farm Overlap Checker under the installed plugins.
-6. Enable the plugin.
-
-Typical Windows plugin directories include:
-
-**QGIS 3:**
-
-```text
-C:\Users\<username>\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\
-```
-
-**QGIS 4:**
-
-```text
-C:\Users\<username>\AppData\Roaming\QGIS\QGIS4\profiles\default\python\plugins\
-```
-
-The actual profile directory may differ depending on your QGIS installation.
-
-### Option B: Install from a ZIP package
-
-Once a packaged release is available:
-
-1. Open QGIS.
-2. Navigate to **Plugins → Manage and Install Plugins**.
-3. Select **Install from ZIP**.
-4. Browse to the plugin ZIP file.
-5. Click **Install Plugin**.
-6. Enable the plugin if necessary.
-
-## 6. Usage
-<img width="796" height="322" alt="image" src="https://github.com/user-attachments/assets/9d79daf6-bd97-42ea-9dc6-2860d8653260" />
-
-### Step 1: Load your farm polygon data
-
-Load one or more polygon vector layers into QGIS.
-
-Each layer should contain a unique farm identifier field:
-
-- `farm_id` (preferred), or
-- `id` (fallback).
-
-### Step 2: Open Farm Overlap Checker
-
-Open the plugin from the QGIS Plugins menu or its toolbar icon.
-
-### Step 3: Select a polygon layer
-
-Use the polygon layer dropdown to select the layer to analyse.
-
-The active polygon layer is prioritised automatically. Use the Refresh button to update the available layers after adding or removing layers from the QGIS project.
-
-### Step 4: Specify overlap thresholds
-
-Enter the required overlap thresholds for Farm 1 and Farm 2.
-
-For example:
-
-| Parameter | Threshold |
-|---|---:|
-| Farm 1 overlap threshold | 10% |
-| Farm 2 overlap threshold | 5% |
-
-A farm pair will be reported if either farm exceeds its respective threshold.
-
-### Step 5: Specify the output CSV location
-
-Choose the destination and filename for the CSV results file.
-
-### Step 6: Run the analysis
-
-Click the Run button.
-
-The plugin processes the selected polygon layer, displays progress, and identifies qualifying overlapping farm pairs.
-
-The analysis can be cancelled while it is running.
-
-### Step 7: Inspect the results
-
-After successful processing:
-
-- The results are saved to the specified CSV file.
-- A temporary, non-spatial results table is added to the QGIS Layers panel.
-
-The temporary table can be opened through QGIS to inspect the identified farm pairs and their overlap percentages.
-
-## 7. Output structure
-
-The results table contains the following fields:
-
-| Field | Description |
+| Feature | Description |
 |---|---|
-| `farm_id_1` | Identifier of the first farm |
-| `farm_id_2` | Identifier of the second farm |
-| `overlap_percentage_1` | Percentage of Farm 1 covered by the intersection |
-| `overlap_percentage_2` | Percentage of Farm 2 covered by the intersection |
+| 🗺️ Polygon analysis | Identifies overlaps between farm polygon features. |
+| 📊 Configurable thresholds | Allows separate overlap percentage thresholds for each farm. |
+| 🔀 Independent threshold evaluation | Uses an OR condition to determine whether an overlapping pair qualifies for reporting. |
+| ⚡ Spatial indexing | Uses a spatial index to reduce unnecessary geometric comparisons. |
+| 🖥️ Standalone interface | Provides a dedicated graphical interface for running analyses. |
+| ⚙️ Processing Toolbox | Integrates with the QGIS Processing Toolbox. |
+| 📁 CSV export | Exports identified overlapping pairs and their overlap percentages. |
+| 📈 Progress reporting | Displays analysis progress. |
+| ⏹️ Cancellation | Allows users to cancel an ongoing analysis. |
+| 📋 Temporary results table | Creates a temporary QGIS memory layer containing the analysis results. |
+| 🔄 Layer refresh | Allows users to refresh the available polygon layers. |
 
-The CSV file is the persistent output. The QGIS memory layer is temporary and is lost when the project session ends unless it is exported to a permanent data source.
+---
 
-## 8. Processing approach
+## 📦 Requirements
 
-The plugin uses a spatial indexing strategy to improve processing efficiency.
+- **QGIS 4.x**
+- A polygon vector layer containing farm boundaries.
+- A suitable projected coordinate reference system is recommended for meaningful area measurements.
 
-Rather than calculating intersections between every possible pair of farms, it:
+> **Compatibility:** Version 2.0.0 is developed for QGIS 4.x. It is not intended for QGIS 3.x.
 
-1. Builds a spatial index for the selected polygon layer.
-2. Iterates through the farm features.
-3. Retrieves spatially plausible candidate neighbours using bounding-box queries.
-4. Avoids self-comparisons and duplicate pair comparisons.
-5. Calculates exact polygon intersections for candidate pairs.
-6. Computes the overlap percentages.
-7. Applies the user-defined thresholds.
-8. Writes qualifying results to the CSV output.
+---
 
-This approach reduces unnecessary geometric operations, particularly when working with large farm datasets.
+## 🚀 Installation
 
-## 9. Project structure
+### Option 1: Install from ZIP
+
+1. Download the latest release ZIP file from the [GitHub Releases page](https://github.com/DataSurgeonGh/FarmOverlapChecker/releases).
+2. Open QGIS 4.
+3. Navigate to **Plugins → Manage and Install Plugins**.
+4. Select **Install from ZIP**.
+5. Browse to the downloaded `FarmOverlapChecker-2.0.0.zip` file.
+6. Click **Install Plugin**.
+7. Enable Farm Overlap Checker if it is not enabled automatically.
+
+### Option 2: Manual installation
+
+1. Download or clone this repository.
+2. Extract the plugin folder named `FarmOverlapChecker`.
+3. Copy the folder into the QGIS Python plugins directory.
+
+On Windows, the typical location is:
+
+```text
+%APPDATA%\QGIS\QGIS4\profiles\default\python\plugins\
+```
+
+The final directory structure should be:
+
+```text
+plugins/
+└── FarmOverlapChecker/
+    ├── __init__.py
+    ├── plugin.py
+    ├── dialog.py
+    ├── metadata.txt
+    ├── LICENSE
+    ├── README.md
+    ├── core/
+    │   ├── __init__.py
+    │   └── analysis.py
+    ├── icons/
+    │   └── icon.svg
+    └── processing/
+        ├── __init__.py
+        ├── algorithms.py
+        └── provider.py
+```
+
+4. Restart QGIS.
+5. Open **Plugins → Manage and Install Plugins**.
+6. Enable **Farm Overlap Checker**.
+
+---
+
+## 🖥️ Using the Standalone Interface
+
+After enabling the plugin:
+
+1. Open **Farm Overlap Checker** from the QGIS Plugins menu or toolbar.
+2. Select the polygon layer containing the farm boundaries.
+3. Configure the two overlap percentage thresholds.
+4. Specify the destination for the CSV output file.
+5. Click the analysis button to begin processing.
+6. Monitor the progress indicator.
+7. When processing completes, inspect the exported CSV and the temporary results table added to the QGIS Layers panel.
+
+### Configuring overlap thresholds
+
+The plugin uses two independent thresholds:
+
+- **Threshold 1:** Minimum required overlap percentage relative to the first farm.
+- **Threshold 2:** Minimum required overlap percentage relative to the second farm.
+
+Both thresholds must be between 0% and 100%.
+
+The thresholds are evaluated independently. An overlapping pair is reported when either percentage strictly exceeds its corresponding threshold.
+
+---
+
+## ⚙️ Using the Processing Toolbox
+
+Farm Overlap Checker also provides an algorithm within the QGIS Processing Toolbox.
+
+To use it:
+
+1. Open the **Processing Toolbox**.
+2. Search for `Check Farm Overlaps`.
+3. Open the algorithm.
+4. Select the input polygon layer.
+5. Specify the two overlap percentage thresholds.
+6. Choose the CSV output destination.
+7. Run the algorithm.
+
+The algorithm reports the total number of farms, overlapping pairs, skipped features and geometry errors.
+
+This integration makes the plugin suitable for users who prefer incorporating overlap analysis into their existing QGIS processing workflows.
+
+---
+
+## 🧮 Mathematical Formulation
+
+Let the farm polygon dataset be:
+
+\[
+\mathcal{F}=\{F_1,F_2,\ldots,F_n\}
+\]
+
+where each \(F_i\) represents an individual farm polygon.
+
+For two distinct farm polygons, \(F_i\) and \(F_j\), their intersection is:
+
+\[
+I_{ij}=F_i\cap F_j
+\]
+
+The area of their intersection is:
+
+\[
+A_{ij}=\operatorname{Area}(F_i\cap F_j)
+\]
+
+Let the respective areas of the two farms be:
+
+\[
+A_i=\operatorname{Area}(F_i)
+\]
+
+\[
+A_j=\operatorname{Area}(F_j)
+\]
+
+The overlap percentage relative to the first farm is:
+
+\[
+\boxed{
+O_{ij}^{(i)}
+=
+\frac{A_{ij}}{A_i}\times100
+}
+\]
+
+Similarly, the overlap percentage relative to the second farm is:
+
+\[
+\boxed{
+O_{ij}^{(j)}
+=
+\frac{A_{ij}}{A_j}\times100
+}
+\]
+
+### The overlap decision rule
+
+Let:
+
+- \(T_1\) denote the first overlap threshold.
+- \(T_2\) denote the second overlap threshold.
+
+The pair of farms is reported when:
+
+\[
+\boxed{
+O_{ij}^{(i)}>T_1
+\quad\mathbf{OR}\quad
+O_{ij}^{(j)}>T_2
+}
+\]
+
+Equivalently, the reporting indicator is:
+
+\[
+R_{ij}
+=
+\begin{cases}
+1, & O_{ij}^{(i)}>T_1
+\text{ or }
+O_{ij}^{(j)}>T_2,\\
+0, & \text{otherwise}.
+\end{cases}
+\]
+
+**Important:** The plugin uses a strict greater-than comparison (\(>\)), not greater-than-or-equal-to (\(\geq\)).
+
+It also uses an **OR condition**, not an AND condition. Therefore, an overlapping pair qualifies if at least one of its two overlap percentages exceeds its corresponding threshold.
+
+---
+
+## 📊 Worked Example
+
+Consider three farm polygons with the following characteristics:
+
+| Farm | Area |
+|---|---:|
+| Farm A | 10,000 m² |
+| Farm B | 10,000 m² |
+| Farm C | 2,500 m² |
+
+Suppose their intersections are:
+
+- Farm A and Farm B: 2,000 m².
+- Farm A and Farm C: 2,500 m².
+- Farm B and Farm C: 0 m².
+
+The resulting overlap percentages are:
+
+| Farm pair | Overlap area | Percentage of first farm | Percentage of second farm |
+|---|---:|---:|---:|
+| A–B | 2,000 m² | 20% | 20% |
+| A–C | 2,500 m² | 25% | 100% |
+| B–C | 0 m² | 0% | 0% |
+
+Suppose the configured thresholds are:
+
+\[
+T_1=30\%, \qquad T_2=90\%
+\]
+
+For Farm A and Farm B:
+
+\[
+20\%>30\% \quad \text{OR} \quad 20\%>90\%
+\]
+
+Both conditions are false. Therefore, the pair is not reported.
+
+For Farm A and Farm C:
+
+\[
+25\%>30\% \quad \text{OR} \quad 100\%>90\%
+\]
+
+The first condition is false, but the second is true. Therefore, the pair is reported.
+
+**Result:** Farm A and Farm C are identified as an overlapping pair.
+
+This illustrates why the two thresholds must be evaluated independently.
+
+---
+
+## 📁 CSV Output
+
+The analysis exports the identified overlapping farm pairs to a CSV file.
+
+The output contains the following columns:
+
+| Column | Description |
+|---|---|
+| `farm_id_1` | Identifier of the first farm. |
+| `farm_id_2` | Identifier of the second farm. |
+| `overlap_percentage_1` | Percentage of the first farm covered by the intersection. |
+| `overlap_percentage_2` | Percentage of the second farm covered by the intersection. |
+
+### Example output
+
+```csv
+farm_id_1,farm_id_2,overlap_percentage_1,overlap_percentage_2
+FARM_A,FARM_C,25.000000,100.000000
+```
+
+Overlap percentages are exported to six decimal places.
+
+The plugin also creates a temporary QGIS memory table containing the analysis results.
+
+---
+
+## ⚡ Performance and Processing
+
+Farm Overlap Checker uses a spatial index to improve the efficiency of identifying candidate polygon pairs.
+
+Rather than performing intersection calculations indiscriminately across every possible pair of polygons, the spatial index helps identify geometrically relevant candidates.
+
+This reduces unnecessary geometric comparisons, particularly when working with large farm datasets.
+
+### Progress monitoring and cancellation
+
+During analysis:
+
+- The progress indicator displays processing progress.
+- Users can cancel an ongoing operation.
+- Incomplete output from a cancelled analysis is discarded.
+- An existing CSV output is protected from being overwritten by an incomplete analysis.
+
+These features help make the analysis more reliable when working with large datasets.
+
+---
+
+## ⚠️ Important Considerations
+
+1. **Polygon layers only:** The plugin is designed for polygon vector layers. Point and line layers are excluded.
+2. **Coordinate reference system:** Use an appropriate projected CRS for meaningful area calculations. The plugin uses the areas returned by QGIS geometry operations.
+3. **Overlap thresholds:** The two thresholds are independent and are evaluated using an OR condition.
+4. **Strict comparison:** A percentage exactly equal to its threshold does not qualify.
+5. **Farm identifiers:** The analysis uses an available `farm_id` or `id` field to identify farms.
+6. **Geometry quality:** Invalid, empty or problematic geometries may affect intersection calculations. Review the source geometries when geometry errors are reported.
+7. **Temporary results:** The results table is a temporary QGIS memory layer. Export or save results separately if they need to be retained beyond the current QGIS session.
+
+---
+
+## 🧪 Testing
+
+Version 2.0.0 has been tested in QGIS 4 using controlled polygon datasets and larger test datasets.
+
+The tests included:
+
+- Standalone interface operation.
+- Processing Toolbox integration.
+- Polygon layer selection and filtering.
+- Independent overlap thresholds.
+- OR-based overlap evaluation.
+- Strict greater-than threshold comparisons.
+- CSV output generation.
+- Progress reporting and cancellation.
+- Protection of existing CSV output during cancelled reruns.
+- Temporary results table creation.
+- Analysis involving 5,000 polygon features.
+- Installation and operation from the distributable ZIP package.
+
+---
+
+## 📂 Project Structure
 
 ```text
 FarmOverlapChecker/
 │
 ├── __init__.py
-├── metadata.txt
 ├── plugin.py
 ├── dialog.py
+├── metadata.txt
+├── README.md
+├── LICENSE
+├── image.png
 │
 ├── core/
 │   ├── __init__.py
 │   └── analysis.py
 │
-├── processing/
-│   └── __init__.py
+├── icons/
+│   └── icon.svg
 │
-└── icons/
-    └── icon.svg
+└── processing/
+    ├── __init__.py
+    ├── algorithms.py
+    └── provider.py
 ```
 
 ### Main components
 
 | File | Responsibility |
 |---|---|
-| `__init__.py` | QGIS plugin entry point |
-| `metadata.txt` | Plugin metadata and version information |
-| `plugin.py` | Plugin initialisation, toolbar and menu integration |
-| `dialog.py` | Graphical user interface and user interactions |
-| `core/analysis.py` | Core spatial overlap analysis engine |
-| `processing/` | Reserved for future QGIS Processing Toolbox integration |
-| `icons/icon.svg` | Plugin icon |
-
-## 10. Current development status
-
-**Version:** 1.1.0
-
-This repository represents the initial functional implementation of Farm Overlap Checker.
-
-The current version provides a standalone QGIS interface for analysing polygon overlaps and exporting results.
-
-### Implemented
-
-- Standalone plugin interface.
-- Polygon layer selection.
-- Dynamic layer refresh.
-- Independent overlap thresholds.
-- OR-based overlap evaluation.
-- Spatial indexing.
-- Duplicate comparison prevention.
-- CSV export.
-- Temporary QGIS results table.
-- Progress monitoring and cancellation.
-
-### Planned improvements
-
-- Integration with the QGIS Processing Toolbox.
-- Additional output formats.
-- More detailed geometry validation and diagnostics.
-- Improved performance for very large polygon datasets.
-- Expanded automated testing.
-- Formal compatibility testing across QGIS 3.x and QGIS 4.x.
-- Distribution through a packaged ZIP release and, eventually, the QGIS Plugin Repository.
-
-## 11. Limitations and considerations
-
-- The analysis is performed on polygon geometries in the selected layer.
-- The plugin requires a recognised farm identifier field.
-- Invalid, empty, or zero-area geometries may be skipped or produce geometry errors.
-- The overlap percentages depend on the area calculations provided by the input layer's coordinate reference system and geometry configuration. A suitable projected CRS is recommended for reliable area-based analysis.
-- Bounding-box filtering identifies candidate pairs; actual overlap is determined using polygon intersection geometry.
-- The results table is stored in memory and is not automatically permanent.
-- The plugin has not yet been formally validated against every supported QGIS version.
-
-## 12. Contributing
-
-Contributions, bug reports, and suggestions are welcome.
-
-When reporting an issue, please include:
-
-- QGIS version.
-- Operating system.
-- Description of the issue.
-- Relevant error messages from the QGIS Python Console.
-- A small sample dataset, where possible.
-
-For proposed changes, please describe the problem being addressed and the expected behaviour.
-
-## 13. Licence
-
-A licence has not yet been assigned to this initial repository version. A suitable open-source licence should be selected and added before public distribution.
+| `plugin.py` | Plugin initialisation, menu and toolbar integration, and Processing provider registration. |
+| `dialog.py` | Standalone graphical interface. |
+| `core/analysis.py` | Core overlap detection and CSV export logic. |
+| `processing/algorithms.py` | QGIS Processing algorithm implementation. |
+| `processing/provider.py` | Registers the plugin's Processing algorithm provider. |
+| `metadata.txt` | Plugin metadata and compatibility information. |
 
 ---
 
-**Farm Overlap Checker**
+## 🛠️ Development
 
-*A practical GIS tool for identifying and assessing overlapping farm boundaries.*
+The plugin is developed using Python and the QGIS Python API (PyQGIS).
+
+To contribute:
+
+1. Fork the repository.
+2. Clone your fork.
+3. Make your changes in a separate development branch.
+4. Test the changes in QGIS 4.
+5. Submit a pull request describing the changes.
+
+Repository:
+
+[https://github.com/DataSurgeonGh/FarmOverlapChecker](https://github.com/DataSurgeonGh/FarmOverlapChecker)
+
+Bug reports and feature requests can be submitted through the [GitHub Issues page](https://github.com/DataSurgeonGh/FarmOverlapChecker/issues).
+
+---
+
+## 👨‍💻 Author
+
+**KA Chanik**
+
+Email: [drkan1815@gmail.com](mailto:drkan1815@gmail.com)
+
+GitHub: [DataSurgeonGh](https://github.com/DataSurgeonGh)
+
+---
+
+## 📜 Licence
+
+Farm Overlap Checker is free and open-source software distributed under the **GNU General Public License v2.0 or later (GPL-2.0-or-later)**.
+
+See the [LICENSE](LICENSE) file for the full licence terms.
+
+---
+
+<p align="center">
+
+**🌾 Farm Overlap Checker — Making farm boundary overlap analysis easier with QGIS.**
+
+</p>

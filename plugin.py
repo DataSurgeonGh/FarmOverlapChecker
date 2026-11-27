@@ -1,17 +1,26 @@
 
+# Farm Overlap Checker
+# Copyright (C) 2026 KA Chanik
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the LICENSE file for details.
+
 import os
+import traceback
 
-from qgis.PyQt.QtGui import QIcon
-
-# QAction moved from QtWidgets to QtGui in Qt 6.
-try:
-    from qgis.PyQt.QtGui import QAction
-except ImportError:
-    from qgis.PyQt.QtWidgets import QAction
+from qgis.PyQt.QtGui import QAction, QIcon
 
 from qgis.core import (
     QgsApplication,
     QgsMessageLog,
+    Qgis,
 )
 
 from .dialog import OverlapCheckerDialog
@@ -19,6 +28,8 @@ from .processing.provider import FarmOverlapProvider
 
 
 class FarmOverlapCheckerPlugin:
+
+    PLUGIN_NAME = "Farm Overlap Checker"
 
     def __init__(self, iface):
 
@@ -30,14 +41,24 @@ class FarmOverlapCheckerPlugin:
         self.provider = None
 
     # --------------------------------------------------
+    # LOGGING
+    # --------------------------------------------------
+
+    def log_message(self, message, level=Qgis.MessageLevel.Info):
+
+        QgsMessageLog.logMessage(
+            message,
+            self.PLUGIN_NAME,
+            level
+        )
+
+    # --------------------------------------------------
     # INITIALISE PLUGIN
     # --------------------------------------------------
 
     def initGui(self):
 
-        # ----------------------------------------------
         # Register Processing Toolbox provider
-        # ----------------------------------------------
 
         try:
 
@@ -51,45 +72,47 @@ class FarmOverlapCheckerPlugin:
 
             if registered:
 
-                QgsMessageLog.logMessage(
-                    "Farm Overlap Checker Processing provider registered.",
-                    "Farm Overlap Checker",
+                self.log_message(
+                    "Processing provider registered successfully."
                 )
 
             else:
 
-                QgsMessageLog.logMessage(
-                    "Could not register Farm Overlap Checker Processing provider.",
-                    "Farm Overlap Checker",
-                )
-
                 self.provider = None
+
+                self.log_message(
+                    "Processing provider registration failed.",
+                    Qgis.MessageLevel.Warning
+                )
 
         except Exception as error:
 
             self.provider = None
 
-            QgsMessageLog.logMessage(
-                "Processing provider registration failed: {}".format(
+            self.log_message(
+                "Processing provider registration error: {}".format(
                     error
                 ),
-                "Farm Overlap Checker",
+                Qgis.MessageLevel.Critical
             )
 
-        # ----------------------------------------------
-        # Existing standalone plugin interface
-        # ----------------------------------------------
+            self.log_message(
+                traceback.format_exc(),
+                Qgis.MessageLevel.Critical
+            )
+
+        # Create standalone interface action
 
         icon_path = os.path.join(
             self.plugin_dir,
             "icons",
-            "icon.svg",
+            "icon.svg"
         )
 
         self.action = QAction(
             QIcon(icon_path),
-            "Farm Overlap Checker",
-            self.iface.mainWindow(),
+            self.PLUGIN_NAME,
+            self.iface.mainWindow()
         )
 
         self.action.setWhatsThis(
@@ -101,7 +124,7 @@ class FarmOverlapCheckerPlugin:
 
         self.iface.addPluginToMenu(
             "&Farm Overlap Checker",
-            self.action,
+            self.action
         )
 
         self.iface.addToolBarIcon(self.action)
@@ -116,7 +139,7 @@ class FarmOverlapCheckerPlugin:
 
             self.dialog = OverlapCheckerDialog(
                 self.iface,
-                self.iface.mainWindow(),
+                self.iface.mainWindow()
             )
 
         self.dialog.show()
@@ -129,15 +152,13 @@ class FarmOverlapCheckerPlugin:
 
     def unload(self):
 
-        # ----------------------------------------------
         # Remove standalone interface
-        # ----------------------------------------------
 
         if self.action is not None:
 
             self.iface.removePluginMenu(
                 "&Farm Overlap Checker",
-                self.action,
+                self.action
             )
 
             self.iface.removeToolBarIcon(
@@ -147,15 +168,15 @@ class FarmOverlapCheckerPlugin:
             self.action.deleteLater()
             self.action = None
 
+        # Close standalone dialog
+
         if self.dialog is not None:
 
             self.dialog.close()
             self.dialog.deleteLater()
             self.dialog = None
 
-        # ----------------------------------------------
         # Unregister Processing provider
-        # ----------------------------------------------
 
         if self.provider is not None:
 
@@ -165,7 +186,6 @@ class FarmOverlapCheckerPlugin:
 
             self.provider = None
 
-            QgsMessageLog.logMessage(
-                "Farm Overlap Checker Processing provider removed.",
-                "Farm Overlap Checker",
+            self.log_message(
+                "Processing provider removed successfully."
             )

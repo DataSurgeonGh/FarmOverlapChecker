@@ -1,14 +1,20 @@
 
 [general]
 name=Farm Overlap Checker
-qgisMinimumVersion=3.28
+qgisMinimumVersion=4.0
 qgisMaximumVersion=4.99
 description=Identifies overlapping farm polygons using configurable overlap percentage thresholds and exports results to CSV.
-version=1.1.0
+version=2.0.0
 author=KA Chanik
 email=drkan1815@gmail.com
-about=An interactive QGIS plugin for identifying overlapping farm polygons, monitoring processing progress, and exporting results to CSV.
+about=Farm Overlap Checker is an open-source QGIS plugin for identifying overlapping farm polygons. It provides a standalone graphical interface and a Processing Toolbox algorithm. Users can configure separate overlap percentage thresholds for each farm. Results are exported to CSV. The plugin uses spatial indexing to improve the efficiency of overlap detection.
 category=Vector
 icon=icons/icon.svg
+homepage=https://github.com/DataSurgeonGh/FarmOverlapChecker
+repository=https://github.com/DataSurgeonGh/FarmOverlapChecker
+tracker=https://github.com/DataSurgeonGh/FarmOverlapChecker/issues
+license=GPL-2.0-or-later
+tags=agriculture, farms, polygons, overlap, spatial analysis
 experimental=False
 deprecated=False
+changelog=Version 2.0.0: Updated compatibility for QGIS 4. Retained the standalone interface and Processing Toolbox integration.
